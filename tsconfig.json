@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "strict": true,
         "target": "es2024",
         "module": "node18",
         "moduleResolution": "node16",
@@ -11,6 +12,7 @@
         "sourceMap": true,
 
         "paths": {
+            "@tool/*": [ "./tool/*" ],
             "@/*": [ "./*" ]
         }
     }
