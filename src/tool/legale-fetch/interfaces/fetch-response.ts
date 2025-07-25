@@ -2,6 +2,7 @@ export interface FetchResponse {
     ok:             boolean;
     url:            string;
     status:         number;
+    statusText:     string;
     headers:        Headers;
     redirected:     boolean;
 
