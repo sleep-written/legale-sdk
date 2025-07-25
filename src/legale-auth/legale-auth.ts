@@ -1,5 +1,5 @@
+import type { AuthMethod, LegaleFetchObject } from './interfaces/index.js';
 import { LegaleFetch } from '@/legale-fetch/legale-fetch.js';
-import type { LegaleFetchObject } from './interfaces/index.js';
 
 export class LegaleAuth {
     #legaleFetch: LegaleFetchObject;
@@ -12,6 +12,29 @@ export class LegaleAuth {
     #apiKey?: string;
     get apiKey(): string | undefined {
         return this.#apiKey;
+    }
+
+    get isLogged(): boolean {
+        return (
+            typeof this.#token  === 'string' ||
+            typeof this.#apiKey === 'string'
+        );
+    }
+
+    get authMethod(): AuthMethod | null {
+        switch (true) {
+            case typeof this.#token  === 'string': {
+                return 'bearer-token';
+            }
+            
+            case typeof this.#apiKey === 'string': {
+                return 'api-key';
+            }
+
+            default: {
+                return null;
+            }
+        }
     }
 
     constructor(legaleFetch?: LegaleFetchObject) {
@@ -36,5 +59,10 @@ export class LegaleAuth {
 
         this.#token = undefined;
         this.#apiKey = apiKey;
+    }
+
+    logout(): void {
+        this.#token = undefined;
+        this.#apiKey = undefined;
     }
 }

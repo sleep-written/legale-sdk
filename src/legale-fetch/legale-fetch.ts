@@ -110,7 +110,7 @@ export class LegaleFetch {
         }
     }
     
-    async fetchJSON<T = any>(path: string, request?: LegaleFetchRequestOptions): Promise<T> {
+    async fetchJSON(path: string, request?: LegaleFetchRequestOptions): Promise<any> {
         const resp = await this.#executeFetch(path, request);
         const json = await resp
             .json()

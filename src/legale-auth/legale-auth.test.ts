@@ -25,6 +25,8 @@ test('Login with token', async t => {
 
     t.is(legaleAuth.token,'zeta paga la coca');
     t.true(typeof legaleAuth.apiKey === 'undefined');
+    t.true(legaleAuth.isLogged);
+    t.is(legaleAuth.authMethod, 'bearer-token');
 });
 
 test('Login with apiKey', async t => {
@@ -39,4 +41,6 @@ test('Login with apiKey', async t => {
 
     t.true(typeof legaleAuth.token === 'undefined');
     t.is(legaleAuth.apiKey, 'jodeeeeeer');
+    t.true(legaleAuth.isLogged);
+    t.is(legaleAuth.authMethod, 'api-key');
 });
