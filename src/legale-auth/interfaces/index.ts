@@ -1,0 +1,1 @@
+export type { LegaleFetchObject } from './legale-fetch.object.js';

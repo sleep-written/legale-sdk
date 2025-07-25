@@ -3,8 +3,8 @@ import type { FetchFunction, FetchResponse, LegaleFetchInject, LegaleFetchReques
 import { FailedFetchResponseError } from './failed-fetch-response.error.js';
 import { FailedFetchRequestError } from './failed-fetch-request.error.js';
 
-import { toJSONCamelCase } from '@tool/to-json-camel-case/index.js';
-import { toJSONSnakeCase } from '@tool/to-json-snake-case/index.js';
+import { toJSONCamelCase } from '@/to-json-camel-case/index.js';
+import { toJSONSnakeCase } from '@/to-json-snake-case/index.js';
 
 export class LegaleFetch {
     #fetch:             FetchFunction;
@@ -97,6 +97,17 @@ export class LegaleFetch {
         }
 
         return this.#fetch(url, init);
+    }
+
+    async fetch(path: string, request?: LegaleFetchRequestOptions): Promise<void> {
+        const resp = await this.#executeFetch(path, request);
+        if (!resp.ok) {
+            throw new FailedFetchResponseError(
+                resp.status,
+                resp.statusText ??
+                'Unknown fetch error'
+            );
+        }
     }
     
     async fetchJSON<T = any>(path: string, request?: LegaleFetchRequestOptions): Promise<T> {
