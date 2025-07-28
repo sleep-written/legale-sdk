@@ -1,5 +1,6 @@
 import type { AuthMethod, LegaleFetchObject } from './interfaces/index.js';
 import { LegaleFetch } from '@/legale-fetch/legale-fetch.js';
+import { FailedLoginError } from './failed-login.error.js';
 
 export class LegaleAuth {
     #legaleFetch: LegaleFetchObject;
@@ -42,23 +43,35 @@ export class LegaleAuth {
     }
 
     async getToken(email: string, password: string): Promise<void> {
-        const json = await this.#legaleFetch.fetchJSON('api/token', {
-            method: 'post',
-            body: { email, password }
-        });
+        try {
+            const json = await this.#legaleFetch.fetchJSON('api/token', {
+                method: 'post',
+                body: { email, password }
+            });
 
-        this.#token = json.token;
-        this.#apiKey = undefined;
+            this.#token = json.token;
+            this.#apiKey = undefined;
+
+        } catch (err: any) {
+            throw new FailedLoginError(err);
+
+        }
     }
 
     async setApiKey(apiKey: string): Promise<void> {
-        await this.#legaleFetch.fetch('api/documents', {
-            query: { page: 1, pageSize: 0 },
-            apiKey
-        });
+        try {
+            await this.#legaleFetch.fetch('api/documents', {
+                query: { page: 1, pageSize: 0 },
+                apiKey
+            });
 
-        this.#token = undefined;
-        this.#apiKey = apiKey;
+            this.#token = undefined;
+            this.#apiKey = apiKey;
+
+        } catch (err: any) {
+            throw new FailedLoginError(err);
+
+        }
     }
 
     logout(): void {

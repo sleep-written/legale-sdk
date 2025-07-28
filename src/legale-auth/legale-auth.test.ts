@@ -1,7 +1,9 @@
 import type { LegaleFetchObject } from './interfaces/index.js';
 
+import { FailedFetchResponseError } from '@/legale-fetch/index.js';
 import { LegaleAuth } from './legale-auth.js';
 import test from 'ava';
+import { FailedLoginError } from './failed-login.error.js';
 
 function legaleFetchFactory(methods: Partial<LegaleFetchObject>): LegaleFetchObject {
     return {
@@ -12,7 +14,7 @@ function legaleFetchFactory(methods: Partial<LegaleFetchObject>): LegaleFetchObj
     };
 }
 
-test('Login with token', async t => {
+test('Login with token → success', async t => {
     const legaleFetch = legaleFetchFactory({
         fetchJSON: () => Promise.resolve({ token: 'zeta paga la coca' } as any)
     });
@@ -29,7 +31,27 @@ test('Login with token', async t => {
     t.is(legaleAuth.authMethod, 'bearer-token');
 });
 
-test('Login with apiKey', async t => {
+test('Login with token → failed', async t => {
+    const legaleFetch = legaleFetchFactory({
+        fetchJSON: () => Promise.reject(
+            new FailedFetchResponseError(401, 'Incorrect credentials')
+        )
+    });
+    
+    const legaleAuth = new LegaleAuth(legaleFetch);
+    await t.throwsAsync(
+        () => legaleAuth.getToken(
+            'sdfgsdfg@sdfgsdf.cl',
+            'sdfgsdfgsd'
+        ),
+        {
+            instanceOf: FailedLoginError,
+            message: 'Failed to login into Legale'
+        }
+    );
+});
+
+test('Login with apiKey → success', async t => {
     const legaleFetch = legaleFetchFactory({
         fetch: () => Promise.resolve()
     });
@@ -43,4 +65,23 @@ test('Login with apiKey', async t => {
     t.is(legaleAuth.apiKey, 'jodeeeeeer');
     t.true(legaleAuth.isLogged);
     t.is(legaleAuth.authMethod, 'api-key');
+});
+
+test('Login with apiKey → failed', async t => {
+    const legaleFetch = legaleFetchFactory({
+        fetch: () => Promise.reject(
+            new FailedFetchResponseError(401, 'Incorrect credentials')
+        )
+    });
+
+    const legaleAuth = new LegaleAuth(legaleFetch);
+    await t.throwsAsync(
+        () => legaleAuth.setApiKey(
+            'jodeeeeeer'
+        ),
+        {
+            instanceOf: FailedLoginError,
+            message: 'Failed to login into Legale'
+        }
+    );
 });
