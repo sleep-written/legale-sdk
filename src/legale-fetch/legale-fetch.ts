@@ -3,8 +3,7 @@ import type { FetchFunction, FetchResponse, LegaleFetchInject, LegaleFetchReques
 import { FailedFetchResponseError } from './failed-fetch-response.error.js';
 import { FailedFetchRequestError } from './failed-fetch-request.error.js';
 
-import { toJSONCamelCase } from '@/to-json-camel-case/index.js';
-import { toJSONSnakeCase } from '@/to-json-snake-case/index.js';
+import { toJSONCamelCase, toJSONSnakeCase } from '@/to-json/index.js';
 
 export class LegaleFetch {
     #fetch:             FetchFunction;
