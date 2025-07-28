@@ -1,162 +1,165 @@
-# legale-sdk
-A non-official [legale.io](https://legale.io) API SDK for node, converting all "_snake_case_" keys into "__camelCase__" keys. You can use the testing or the production environment.
+# legale‑sdk
+[![npm version](https://img.shields.io/npm/v/legale-sdk.svg)](https://www.npmjs.com/package/legale-sdk)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## __WARNING__
-This SDK is community-driven and unofficial. Use at your own risk, ~~preferably while drinking vodka and crying over Swagger docs~~.
+> **Unofficial, community‑driven Node.js SDK for the [Legale.io](https://legale.io) e‑signature & document‑management API.** 100 % TypeScript, fully typed end‑to‑end.
+
+---
+
+## Table of Contents
+1. [Disclaimer](#️disclaimer)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Environments](#️environments)
+5. [Quick Start](#quickstart)
+6. [Authentication](#authentication)
+7. [API Reference](#api-reference)
+   *  [Documents](#documents)
+   *  [Folders](#folders)
+8. [JSON Transform Helpers](#️json-transform-helpers)
+9. [Testing](#testing)
+10. [Build & Bundle](#️build--bundle)
+11. [Contributing](#contributing)
+
+---
+
+## Disclaimer
+This package **is not affiliated with Legale.io**. It is built and maintained by the community. **Use it at your own risk.** Review the source, pin your versions, and—preferably—keep a glass of vodka handy while browsing the Swagger docs.
+
+---
+
+## Features
+* **Fully typed** – Zero‑`any` public surface, generated `.d.ts` included.  
+* **Modern ESM** – `type: "module"`, Node 20 +.  
+* **Two authentication flows** – API Key or JWT token.  
+* **Transparent JSON key conversion** – `LegaleFetch` maps snake_case ⇄ camelCase under the hood; the standalone helpers (`toJSONSnakeCase`, `toJSONCamelCase`) are exported for ad‑hoc needs.  
+* **Idiomatic pagination** – Simple `page` / `pageSize` parameters.  
+* **Pluggable fetch layer** – Inject your own `fetch` implementation for browsers, tests or retries.
+
+---
 
 ## Installation
-```shell
-npm i --save legale-sdk
+```bash
+npm i legale-sdk  # yarn add / pnpm add also work
 ```
 
-## Usage
-Legale has 2 environments:
--   Testing: [https://dev.api.legale.io](https://dev.api.legale.io):
-    ```ts
-    import { Legale } from 'legale-sdk'; 
+The SDK ships pre‑compiled to `dist/` with ES2024 output and bundled typings. No transpiler required.
 
-    // Initialize legale in testing environment
-    const legale = new Legale({ test: true });
-    ```
+---
 
--   Production: [https://api.legale.io](https://api.legale.io):
-    ```ts
-    import { Legale } from 'legale-sdk';
+## Environments
+| Environment    | Base URL                    | Use case     |
+| -------------- | --------------------------- | ------------ |
+| **Testing**    | `https://dev.api.legale.io` | Sandbox / QA |
+| **Production** | `https://api.legale.io`     | Live data    |
 
-    // Initialize legale in production environment
-    const legale01 = new Legale({ test: false });
+`Legale` defaults to **production**. Pass `{ test: true }` to switch:
 
-    // This is valid too for use production environment
-    const legale02 = new Legale();
-    ```
-
-To define which environment do you want to use, 
-
-### Login
-Before to make requests to the API, you must login into legale
-
-#### With [Bearer Token](https://doc.legale.io/docs/v1/overview#1-bearer-token):
-This method generates a temporal token, will expires into several hours:
 ```ts
-import { Legale } from 'legale-sdk'; 
+import { Legale } from 'legale-sdk';
 
-// Initialize legale
-const legale = new Legale();
-
-// Login using credentials (generates a temporal token)
-await legale.getToken('i-am-a-real-user.trust-me@gmail.com', 'hello-world');
+const legale = new Legale({ test: true }); // ↖︎ points to dev.api
 ```
 
-#### With [API Key](https://doc.legale.io/docs/v1/overview#1-bearer-token):
-This method is useful if you generates an API Key in legale platform:
+---
+
+## Quick Start
 ```ts
-import { Legale } from 'legale-sdk'; 
+import { Legale } from 'legale-sdk';
 
-// Initialize legale
-const legale = new Legale();
+const legale = new Legale();   // Production by default
+await legale.setAPIKey(process.env.LEGALE_API_KEY!);
 
-// Login using an API Key
-await legale.setAPIKey('aaa-thats-3as...');
+const { rows } = await legale.getDocuments(1, 20);
+console.table(rows);
 ```
 
-## Get documents ([API reference](https://doc.legale.io/docs/v2/document/list#api-detail))
-Get a document list using pagination:
+---
+
+## Authentication
+Choose one of the following:
+
+### 1. API Key
 ```ts
-import { Legale } from 'legale-sdk'; 
-
-// Initialize legale
-const legale = new Legale();
-await legale.setAPIKey('aaa-thats-3as...');
-
-// Get documents using pagination
-const result = await legale.getDocuments(1, 10);
-console.log(result);
+await legale.setAPIKey('aaa-bbb-ccc‑ddd');
 ```
 
-### Request
--   __page__: `number`: The page do you want to list. Starts with index 1.
--   __pageSize__: `number`: The amount of elements in the page.
-
-### Response
-#### Interface `GetDocumentsResponse`
--   __count__: `number`;
--   __next__: `string` | `null`;
--   __previous__: `string` | `null`;
--   __results__: `Document[]`;
-
-#### Interface `Document`
--   __GUID__: `string`;
--   __docId__: `string`;
--   __document__: `string`;
--   __fileName__: `string`;
--   __description__: `string`;
--   __createdAt__: `Date`;
--   __updatedAt__: `Date`;
--   __sign_status__: `number`;
--   __comment__: `null`;
--   __callbackUrl__: `null`;
--   __callbackKey__: `null`;
-
-## Get document detail ([API reference](https://doc.legale.io/docs/v1/document/detail))
+### 2. Email + Password → JWT
 ```ts
-import { Legale } from 'legale-sdk'; 
-
-// Initialize legale
-const legale = new Legale();
-await legale.setAPIKey('aaa-thats-3as...');
-
-// Get document detail using GUID
-const result = await legale.getDocumentDetail('xxxx-xxxx-...');
-console.log(result);
+await legale.getToken('user@example.com', 'S3cureP4ss');
 ```
-### Request
--   __GUID__: `string`;
 
-### Response
-#### Interface `DocumentDetail`
--   __GUID__: `string`;
--   __docId__: `string`;
--   __document__: `string`;
--   __folder__: `string`;
--   __originDocument__: `string`;
--   __fileName__: `string`;
--   __subject__: `null`;
--   __description__: `string`;
--   __createdAt__: `Date`;
--   __updatedAt__: `Date`;
--   __signStatus__: `number`;
--   __comment__: `null`;
--   __signatureKey__: `null`;
--   __base64__: `string`;
--   __callbackUrl__: `null`;
--   __callbackKey__: `null`;
--   __deleteAfterCallback__: `false`;
--   __isSkipNotification__: `false`;
--   __owner__: `Owner`;
--   __signList__: `Sign[]`;
+The last method called wins (calling `setAPIKey` clears the JWT and vice‑versa).
 
-#### Interface `Owner`
--   __email__: `string`;
--   __role__: `number`;
--   __nickname__: `null`;
--   __firstname__: `string`;
--   __lastname1__: `string`;
--   __lastname2__: `string`;
--   __avatar__: `null`;
--   __gender__: `number`;
--   __idType__: `number`;
--   __idNumber__: `string`;
--   __userVideo__: `string`;
+---
 
-#### Interface `Sign`
--   __id__: `number`;
--   __signMethod__: `string`;
--   __signerInfo__: `SignerInfo`;
+## API Reference
+Below is the high‑level surface. All methods return `Promise<…>` and throw rich error classes (`FailedLoginError`, `FailedFetchRequestError`, `FailedFetchResponseError`). Refer to the source for complete TypeScript definitions.
 
-#### Interface `SignerInfo`
--   __id__: `number`;
--   __email__: `string`;
--   __phone__: `null`;
--   __firstname__: `string`;
--   __lastname1__: `string`;
--   __lastname2__: `string`;
+### Documents
+| Method              | Signature                                                   | Description                                                                    |
+| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `getDocuments`      | `(page: number, pageSize: number)` → `GetDocumentsResponse` | Paginated list of documents.                                                   |
+| `getDocumentDetail` | `(guid: string)` → `DocumentDetail`                         | Metadata and signers for a single document.                                    |
+| `createDocument`    | `(options: CreateDocumentRequest)` → `Document`             | Upload a PDF and request signatures. Buffers are automatically base64‑encoded. |
+| `deleteDocument`    | `(guid: string)` → `void`                                   | Permanently removes a document.                                                |
+
+### Folders
+| Method       | Signature         | Description                                             |
+| ------------ | ----------------- | ------------------------------------------------------- |
+| `getFolders` | `()` → `Folder[]` | Retrieve the folder tree for the authenticated account. |
+
+> **Pagination** – `getDocuments` uses **1‑based** indices (`page = 1` ⇒ first page).
+
+---
+
+## JSON Transform Helpers
+Legale’s REST endpoints speak **snake_case**, but the SDK converts everything for you:
+
+```ts
+const doc = await legale.getDocumentDetail(guid);
+// → all keys arrive in camelCase
+```
+
+Outgoing bodies are likewise converted to snake\_case automatically.
+If you need the transformers outside `Legale` (e.g. for fixtures or DB dumps), you can still import them:
+
+```ts
+import { toJSONCamelCase, toJSONSnakeCase } from 'legale-sdk';
+
+const uiData  = toJSONCamelCase(rawApiResponse);
+const apiBody = toJSONSnakeCase(formData);
+```
+
+Both helpers recurse through plain objects, arrays, `Set`, `Map`, and convert ISO date strings (`YYYY‑MM‑DDThh:mm:ss.sssZ`) to native `Date` instances on the way in—and back to ISO on the way out.
+
+---
+
+## Testing
+Unit tests run with [AVA](https://github.com/avajs/ava):
+
+```bash
+node --run test
+```
+
+Tests mock the network layer; no real calls are made.
+
+---
+
+## Build & Bundle
+```bash
+node --run build
+```
+
+`bb-path-alias` resolves `@/` imports and `tsc-alias` rewrites path mappings in the generated declaration files.
+
+---
+
+## Contributing
+1. Fork & clone.
+2. `npm i`.
+3. Add tests for any new behaviour.
+4. Run `node --run build && node --run test`.
+5. Open a PR—descriptive commit history & clean diff appreciated.
+
+Feel free to open issues for bugs, use‑cases, or missing endpoints.

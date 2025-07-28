@@ -6,15 +6,39 @@ import { Legale } from './legale.js';
 import test from 'ava';
 
 const legaleFetch: LegaleFetchObject = {
-    fetch:          () => Promise.reject('Not implemented'),
-    fetchBuffer:    () => Promise.reject('Not implemented'),
-    fetchJSON:      async path => {
-        switch (path) {
-            case 'api/token': {
+    fetchBuffer:    async (path, options) => {
+        switch (`${options?.method ?? 'get'}:${path}`) {
+            case 'get:media/xxx-3': {
+                return Buffer.from('ñeee', 'utf-8');
+            }
+
+            default: {
+                throw new FailedFetchResponseError(404, 'Path not found');
+            }
+        }
+    },
+    fetch:          async (path, options) => {
+        switch (`${options?.method ?? 'get'}:${path}`) {
+            case 'delete:api/document/delete/xxx-6': {
+                return;
+            }
+
+            case 'delete:api/folder/666': {
+                return;
+            }
+
+            default: {
+                throw new FailedFetchResponseError(404, 'Path not found');
+            }
+        }
+    },
+    fetchJSON:      async (path, options) => {
+        switch (`${options?.method ?? 'get'}:${path}`) {
+            case 'post:api/token': {
                 return { token: 'joder-chaval' };
             }
 
-            case 'api/folder': {
+            case 'get:api/folder': {
                 return [
                     {
                         id: 999,
@@ -41,7 +65,7 @@ const legaleFetch: LegaleFetchObject = {
                 ] as Folder[];
             }
 
-            case 'api/documents': {
+            case 'get:api/documents': {
                 return {
                     count: 666,
                     next: 'http://www.joder-chaval.io/',
@@ -56,7 +80,7 @@ const legaleFetch: LegaleFetchObject = {
                 } as GetDocumentsResponse;
             }
 
-            case 'api/document/get/xxx-3': {
+            case 'get:api/document/get/xxx-3': {
                 return {
                     GUID: 'xxx-3',
                     createdAt: new Date('2021-10-19T16:05:44.158662Z'),
@@ -77,7 +101,7 @@ const legaleFetch: LegaleFetchObject = {
                 } as DocumentDetail;
             }
 
-            case 'api/document/create': {
+            case 'post:api/document/create': {
                 return {
                     GUID: 'xxx-6',
                     fileName: 'root/hola/mundo/joder.pdf',
@@ -170,6 +194,13 @@ test('Test getFolders', async t => {
     ]);
 });
 
+test('Test deleteFolder', async t => {
+    const legale = new Legale({ legaleFetch });
+    await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
+    await legale.deleteFolder(666);
+    t.pass();
+});
+
 test('Test createDocument', async t => {
     const legale = new Legale({ legaleFetch });
     await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
@@ -184,4 +215,18 @@ test('Test createDocument', async t => {
         fileName: 'root/hola/mundo/joder.pdf',
         description: 'Archivo de prueba'
     });
+});
+
+test('Test downloadDocument', async t => {
+    const legale = new Legale({ legaleFetch });
+    await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
+    const buffer = await legale.downloadDocument('xxx-3');
+    t.is(buffer.toString('utf-8'), 'ñeee');
+});
+
+test('Test deleteDocument', async t => {
+    const legale = new Legale({ legaleFetch });
+    await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
+    await legale.deleteDocument('xxx-6');
+    t.pass();
 });

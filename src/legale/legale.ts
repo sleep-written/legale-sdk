@@ -27,6 +27,13 @@ export class Legale extends LegaleAuth {
         });
     }
 
+    deleteFolder(id: number): Promise<void> {
+        return this.#legaleFetch.fetch(`api/folder/${id}`, {
+            ...this.#credentials,
+            method: 'delete'
+        });
+    }
+
     getDocuments(page: number, pageSize: number): Promise<GetDocumentsResponse> {
         return this.#legaleFetch.fetchJSON('api/documents', {
             ...this.#credentials,
@@ -62,6 +69,13 @@ export class Legale extends LegaleAuth {
             ...this.#credentials,
             method: 'post',
             body: options
+        });
+    }
+
+    downloadDocument(guid: string): Promise<Buffer> {
+        return this.#legaleFetch.fetchBuffer(`media/${guid}`, {
+            ...this.#credentials,
+            method: 'get'
         });
     }
 
