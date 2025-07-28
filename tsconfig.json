@@ -6,9 +6,9 @@
         "moduleResolution": "node16",
         "verbatimModuleSyntax": true,
 
-        "outDir": "dist",
-        "rootDir": "src",
-        "baseUrl": "src",
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "baseUrl": "./src",
         "sourceMap": true,
         "removeComments": false,
 

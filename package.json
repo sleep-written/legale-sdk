@@ -21,13 +21,14 @@
     "clean": "rm -rf ./dist",
     "build": "node --run clean && node --run build:mjs && node --run build:def",
     "build:mjs": "bb-path-alias build ./tsconfig.build.json",
-    "build:def": "tsc -p tsconfig.build.json",
+    "build:def": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "prepare": "node --run build"
   },
   "devDependencies": {
     "@bleed-believer/path-alias": "^2.3.2",
     "@types/node": "^24.1.0",
     "ava": "^6.4.1",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3"
   }
 }
