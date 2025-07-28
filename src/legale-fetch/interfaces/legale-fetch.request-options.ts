@@ -5,6 +5,6 @@ export interface LegaleFetchRequestOptions {
     token?: string;
     headers?: HeadersInit | Headers;
     method?: FetchRequestMethod;
-    query?: Record<string, string | number | boolean | null | undefined>;
+    query?: Record<string, any>;
     body?: any;
 }

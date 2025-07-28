@@ -2,12 +2,25 @@
   "type": "module",
   "name": "legale-sdk",
   "version": "0.0.0",
+  "files": [ "dist" ],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sleep-written/legale-sdk"
+  },
   "scripts": {
     "test": "clear && ava",
     "clean": "rm -rf ./dist",
     "build": "node --run clean && node --run build:mjs && node --run build:def",
     "build:mjs": "bb-path-alias build ./tsconfig.build.json",
-    "build:def": "tsc -p tsconfig.build.json"
+    "build:def": "tsc -p tsconfig.build.json",
+    "prepare": "node --run build"
   },
   "devDependencies": {
     "@bleed-believer/path-alias": "^2.3.2",

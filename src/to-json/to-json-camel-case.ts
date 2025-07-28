@@ -1,6 +1,6 @@
 import { JSONConverter } from './json-converter.js';
 
-const dateISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/;
+const dateISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,})?Z$/;
 const jsonConverter = new JSONConverter({
     normalizeKey: key => key
         .replace(/_{2,}/g, '_')

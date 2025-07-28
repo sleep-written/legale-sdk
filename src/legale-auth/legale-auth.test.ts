@@ -1,9 +1,9 @@
 import type { LegaleFetchObject } from './interfaces/index.js';
 
 import { FailedFetchResponseError } from '@/legale-fetch/index.js';
+import { FailedLoginError } from './failed-login.error.js';
 import { LegaleAuth } from './legale-auth.js';
 import test from 'ava';
-import { FailedLoginError } from './failed-login.error.js';
 
 function legaleFetchFactory(methods: Partial<LegaleFetchObject>): LegaleFetchObject {
     return {
@@ -51,13 +51,13 @@ test('Login with token → failed', async t => {
     );
 });
 
-test('Login with apiKey → success', async t => {
+test('Login with APIKey → success', async t => {
     const legaleFetch = legaleFetchFactory({
         fetch: () => Promise.resolve()
     });
 
     const legaleAuth = new LegaleAuth(legaleFetch);
-    await legaleAuth.setApiKey(
+    await legaleAuth.setAPIKey(
         'jodeeeeeer'
     );
 
@@ -67,7 +67,7 @@ test('Login with apiKey → success', async t => {
     t.is(legaleAuth.authMethod, 'api-key');
 });
 
-test('Login with apiKey → failed', async t => {
+test('Login with APIKey → failed', async t => {
     const legaleFetch = legaleFetchFactory({
         fetch: () => Promise.reject(
             new FailedFetchResponseError(401, 'Incorrect credentials')
@@ -76,7 +76,7 @@ test('Login with apiKey → failed', async t => {
 
     const legaleAuth = new LegaleAuth(legaleFetch);
     await t.throwsAsync(
-        () => legaleAuth.setApiKey(
+        () => legaleAuth.setAPIKey(
             'jodeeeeeer'
         ),
         {

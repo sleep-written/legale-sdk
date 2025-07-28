@@ -58,7 +58,7 @@ export class LegaleAuth {
         }
     }
 
-    async setApiKey(apiKey: string): Promise<void> {
+    async setAPIKey(apiKey: string): Promise<void> {
         try {
             await this.#legaleFetch.fetch('api/documents', {
                 query: { page: 1, pageSize: 0 },
