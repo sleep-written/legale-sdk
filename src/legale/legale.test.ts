@@ -1,4 +1,4 @@
-import type { GetDocumentsResponse, DocumentDetail, Folder } from './interfaces/index.js';
+import type { GetDocumentsResponse, DocumentDetail, Folder, Document } from './interfaces/index.js';
 import type { LegaleFetchObject } from '@/legale-auth/index.js';
 
 import { FailedFetchResponseError } from '@/legale-fetch/index.js';
@@ -75,6 +75,14 @@ const legaleFetch: LegaleFetchObject = {
                         }
                     ]
                 } as DocumentDetail;
+            }
+
+            case 'api/document/create': {
+                return {
+                    GUID: 'xxx-6',
+                    fileName: 'root/hola/mundo/joder.pdf',
+                    description: 'Archivo de prueba'
+                } as Document;
             }
 
             default: {
@@ -160,4 +168,20 @@ test('Test getFolders', async t => {
             parent: null
         }
     ]);
+});
+
+test('Test createDocument', async t => {
+    const legale = new Legale({ legaleFetch });
+    await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
+    const documento = await legale.createDocument({
+        file: Buffer.from([1, 2, 3]),
+        fileName: 'root/hola/mundo/joder.pdf',
+        description: 'Archivo de prueba'
+    });
+
+    t.deepEqual(documento, {
+        GUID: 'xxx-6',
+        fileName: 'root/hola/mundo/joder.pdf',
+        description: 'Archivo de prueba'
+    });
 });

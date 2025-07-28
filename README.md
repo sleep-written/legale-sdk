@@ -10,22 +10,6 @@ npm i --save legale-sdk
 ```
 
 ## Usage
-### Minimal example
-```ts
-import { Legale } from 'legale-sdk'; 
-
-// Initialize legale
-const legale = new Legale();
-
-// Login using credentials (generates a temoral token)
-await legale.getToken('i-am-a-real-user.trust-me@gmail.com', 'hello-world');
-
-// Get documents with pagination
-const documents = await legale.getDocuments(1, 10);
-console.log(documents);
-```
-
-## Usage
 Legale has 2 environments:
 -   Testing: [https://dev.api.legale.io](https://dev.api.legale.io):
     ```ts

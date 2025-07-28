@@ -12,6 +12,9 @@
       "import": "./dist/index.js"
     }
   },
+  "engines": {
+    "node": ">=20"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/sleep-written/legale-sdk"
@@ -28,6 +31,7 @@
     "@bleed-believer/path-alias": "^2.3.2",
     "@types/node": "^24.1.0",
     "ava": "^6.4.1",
+    "docs": "^0.3.2-canary.0",
     "tsc-alias": "^1.8.16",
     "typescript": "^5.8.3"
   }
