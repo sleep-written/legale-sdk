@@ -71,18 +71,18 @@ const legaleFetch: LegaleFetchObject = {
                     next: 'http://www.joder-chaval.io/',
                     previous: null,
                     results: [
-                        { GUID: 'xxx-1' },
-                        { GUID: 'xxx-2' },
-                        { GUID: 'xxx-3' },
-                        { GUID: 'xxx-4' },
-                        { GUID: 'xxx-5' }
+                        { guid: 'xxx-1' },
+                        { guid: 'xxx-2' },
+                        { guid: 'xxx-3' },
+                        { guid: 'xxx-4' },
+                        { guid: 'xxx-5' }
                     ]
                 } as GetDocumentsResponse;
             }
 
             case 'get:api/document/get/xxx-3': {
                 return {
-                    GUID: 'xxx-3',
+                    guid: 'xxx-3',
                     createdAt: new Date('2021-10-19T16:05:44.158662Z'),
                     updatedAt: new Date('2021-10-19T16:05:44.158662Z'),
                     owner: {
@@ -103,7 +103,7 @@ const legaleFetch: LegaleFetchObject = {
 
             case 'post:api/document/create': {
                 return {
-                    GUID: 'xxx-6',
+                    guid: 'xxx-6',
                     fileName: 'root/hola/mundo/joder.pdf',
                     description: 'Archivo de prueba'
                 } as Document;
@@ -127,11 +127,11 @@ test('Test getDocuments', async t => {
         next: 'http://www.joder-chaval.io/',
         previous: null,
         results: [
-            { GUID: 'xxx-1' },
-            { GUID: 'xxx-2' },
-            { GUID: 'xxx-3' },
-            { GUID: 'xxx-4' },
-            { GUID: 'xxx-5' }
+            { guid: 'xxx-1' },
+            { guid: 'xxx-2' },
+            { guid: 'xxx-3' },
+            { guid: 'xxx-4' },
+            { guid: 'xxx-5' }
         ]
     });
 });
@@ -143,7 +143,7 @@ test('Test getDocumentDetail', async t => {
     
     t.is(legale.token, 'joder-chaval');
     t.deepEqual(result, {
-        GUID: 'xxx-3',
+        guid: 'xxx-3',
         createdAt: new Date('2021-10-19T16:05:44.158662Z'),
         updatedAt: new Date('2021-10-19T16:05:44.158662Z'),
         owner: {
@@ -211,7 +211,7 @@ test('Test createDocument', async t => {
     });
 
     t.deepEqual(documento, {
-        GUID: 'xxx-6',
+        guid: 'xxx-6',
         fileName: 'root/hola/mundo/joder.pdf',
         description: 'Archivo de prueba'
     });

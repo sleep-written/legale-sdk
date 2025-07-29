@@ -2,164 +2,174 @@
 [![npm version](https://img.shields.io/npm/v/legale-sdk.svg)](https://www.npmjs.com/package/legale-sdk)
 [![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-> **Unofficial, community‑driven Node.js SDK for the [Legale.io](https://legale.io) e‑signature & document‑management API.** 100 % TypeScript, fully typed end‑to‑end.
+Unofficial SDK for the [Legale API](https://doc.legale.io), designed for developer ergonomics:
 
----
-
-## Table of Contents
-1. [Disclaimer](#️disclaimer)
-2. [Features](#features)
-3. [Installation](#installation)
-4. [Environments](#️environments)
-5. [Quick Start](#quickstart)
-6. [Authentication](#authentication)
-7. [API Reference](#api-reference)
-   *  [Documents](#documents)
-   *  [Folders](#folders)
-8. [JSON Transform Helpers](#️json-transform-helpers)
-9. [Testing](#testing)
-10. [Build & Bundle](#️build--bundle)
-11. [Contributing](#contributing)
+* Automatic JSON normalization to `camelCase`.
+* Single entry point: `new Legale({ test: true|false })`.
+* Helpers for authentication (API key or bearer token), folders, documents, and pagination.
 
 ---
 
 ## Disclaimer
-This package **is not affiliated with Legale.io**. It is built and maintained by the community. **Use it at your own risk.** Review the source, pin your versions, and—preferably—keep a glass of vodka handy while browsing the Swagger docs.
-
----
-
-## Features
-* **Fully typed** – Zero‑`any` public surface, generated `.d.ts` included.  
-* **Modern ESM** – `type: "module"`, Node 20 +.  
-* **Two authentication flows** – API Key or JWT token.  
-* **Transparent JSON key conversion** – `LegaleFetch` maps snake_case ⇄ camelCase under the hood; the standalone helpers (`toJSONSnakeCase`, `toJSONCamelCase`) are exported for ad‑hoc needs.  
-* **Idiomatic pagination** – Simple `page` / `pageSize` parameters.  
-* **Pluggable fetch layer** – Inject your own `fetch` implementation for browsers, tests or retries.
-
----
+This is an unofficial, community‑maintained SDK and is not affiliated with or endorsed by Legale. It is provided "as is" without any warranties, express or implied. API behavior and endpoints may change at any time and break this client. You are responsible for complying with Legale’s terms, handling credentials securely, and validating outputs before using them in production. Use at your own risk.
 
 ## Installation
-```bash
-npm i legale-sdk  # yarn add / pnpm add also work
+```shell
+npm i --save legale-sdk
 ```
 
-The SDK ships pre‑compiled to `dist/` with ES2024 output and bundled typings. No transpiler required.
+## Quick start
+```ts
+import { Legale } from 'legale-sdk';
 
----
+// Using the testing environment
+const legale = new Legale({ test: true });
 
-## Environments
-| Environment    | Base URL                    | Use case     |
-| -------------- | --------------------------- | ------------ |
-| **Testing**    | `https://dev.api.legale.io` | Sandbox / QA |
-| **Production** | `https://api.legale.io`     | Live data    |
+// Log in using the API key method
+await legale.setAPIKey('xxxx-xxxx-...');
 
-`Legale` defaults to **production**. Pass `{ test: true }` to switch:
+// Getting the first 10 documents
+const result = await legale.getDocuments(1, 10);
+console.log(result);
+```
+
+## Environment
+Legale has two environments:
+* Testing: [https://dev.api.legale.io](https://dev.api.legale.io)
+* Production: [https://api.legale.io](https://api.legale.io)
+
+Choose the environment:
 
 ```ts
 import { Legale } from 'legale-sdk';
 
-const legale = new Legale({ test: true }); // ↖︎ points to dev.api
+// Using the testing environment
+const legale01 = new Legale({ test: true });
+
+// Using the production environment
+const legale02 = new Legale({ test: false });
+
+// Using the production environment as default
+const legale03 = new Legale();
 ```
-
----
-
-## Quick Start
-```ts
-import { Legale } from 'legale-sdk';
-
-const legale = new Legale();   // Production by default
-await legale.setAPIKey(process.env.LEGALE_API_KEY!);
-
-const { rows } = await legale.getDocuments(1, 20);
-console.table(rows);
-```
-
----
 
 ## Authentication
-Choose one of the following:
+To use the Legale API you must authenticate using either an API key or a bearer token. You have two authentication methods:
 
-### 1. API Key
+* **API Key**: Generated in the web app. The API key is valid until you revoke it.
+* **Bearer Token**: Generated with your email and password. This method returns a temporary token that expires after a few hours.
+
 ```ts
-await legale.setAPIKey('aaa-bbb-ccc‑ddd');
+import { Legale } from 'legale-sdk';
+
+// Using the testing environment
+const legale = new Legale({ test: true });
+
+// Log in using the API key method
+await legale.setAPIKey('xxxx-xxxx-...');
+
+// Log in using the bearer token method
+await legale.getToken('user@email.io', '53cur3-p455w0r1d');
 ```
-
-### 2. Email + Password → JWT
-```ts
-await legale.getToken('user@example.com', 'S3cureP4ss');
-```
-
-The last method called wins (calling `setAPIKey` clears the JWT and vice‑versa).
-
----
 
 ## API Reference
-Below is the high‑level surface. All methods return `Promise<…>` and throw rich error classes (`FailedLoginError`, `FailedFetchRequestError`, `FailedFetchResponseError`). Refer to the source for complete TypeScript definitions.
-
-### Documents
-| Method              | Signature                                                   | Description                                                                    |
-| ------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `getDocuments`      | `(page: number, pageSize: number)` → `GetDocumentsResponse` | Paginated list of documents.                                                   |
-| `getDocumentDetail` | `(guid: string)` → `DocumentDetail`                         | Metadata and signers for a single document.                                    |
-| `createDocument`    | `(options: CreateDocumentRequest)` → `Document`             | Upload a PDF and request signatures. Buffers are automatically base64‑encoded. |
-| `deleteDocument`    | `(guid: string)` → `void`                                   | Permanently removes a document.                                                |
-
-### Folders
-| Method       | Signature         | Description                                             |
-| ------------ | ----------------- | ------------------------------------------------------- |
-| `getFolders` | `()` → `Folder[]` | Retrieve the folder tree for the authenticated account. |
-
-> **Pagination** – `getDocuments` uses **1‑based** indices (`page = 1` ⇒ first page).
-
----
-
-## JSON Transform Helpers
-Legale’s REST endpoints speak **snake_case**, but the SDK converts everything for you:
+### `Legale.getFolders`
+Returns a `Promise<Folder[]>` ([go to interface](https://github.com/sleep-written/legale-sdk/blob/master/src/legale/interfaces/folder.ts)).
 
 ```ts
-const doc = await legale.getDocumentDetail(guid);
-// → all keys arrive in camelCase
+import { Legale } from 'legale-sdk';
+
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+const folders = await legale.getFolders();
 ```
 
-Outgoing bodies are likewise converted to snake\_case automatically.
-If you need the transformers outside `Legale` (e.g. for fixtures or DB dumps), you can still import them:
+### `Legale.deleteFolder`
+Deletes a folder. Returns a `Promise<void>`. Arguments:
+
+* **guid**: `string`.
 
 ```ts
-import { toJSONCamelCase, toJSONSnakeCase } from 'legale-sdk';
+import { Legale } from 'legale-sdk';
 
-const uiData  = toJSONCamelCase(rawApiResponse);
-const apiBody = toJSONSnakeCase(formData);
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+await legale.deleteFolder(
+   // The folder GUID
+   'aaaa-bbbb-...' 
+);
 ```
 
-Both helpers recurse through plain objects, arrays, `Set`, `Map`, and convert ISO date strings (`YYYY‑MM‑DDThh:mm:ss.sssZ`) to native `Date` instances on the way in—and back to ISO on the way out.
+### `Legale.getDocuments`
+Gets a document list using pagination. Returns a `Promise<GetDocumentsResponse>` ([go to interface](https://github.com/sleep-written/legale-sdk/blob/master/src/legale/interfaces/get-documents.response.ts)). Arguments:
 
----
+* **page**: `number` → The page index to show *(the first page is `1` by the API)*.
+* **pageSize**: `number` → Number of items per page.
 
-## Testing
-Unit tests run with [AVA](https://github.com/avajs/ava):
+```ts
+import { Legale } from 'legale-sdk';
 
-```bash
-node --run test
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+const result = await legale.getDocuments(
+   1,    // Page index, the first page is 1.
+   10    // Page size
+);
 ```
 
-Tests mock the network layer; no real calls are made.
+### `Legale.getDocumentDetail`
+Gets detailed information about a document. Returns a `Promise<DocumentDetail>` ([go to interface](https://github.com/sleep-written/legale-sdk/blob/master/src/legale/interfaces/document-detail.ts)). Arguments:
 
----
+* **guid**: `string`.
 
-## Build & Bundle
-```bash
-node --run build
+```ts
+import { Legale } from 'legale-sdk';
+
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+const document = await legale.getDocumentDetail('aaaa-bbbb-...');
 ```
 
-`bb-path-alias` resolves `@/` imports and `tsc-alias` rewrites path mappings in the generated declaration files.
+### `Legale.createDocument`
+Uploads a PDF file into Legale. Returns a `Promise<Document>` ([go to interface](https://github.com/sleep-written/legale-sdk/blob/master/src/legale/interfaces/document.ts)). Arguments:
 
----
+* **request**: `CreateDocumentRequest` ([go to interface](https://github.com/sleep-written/legale-sdk/blob/master/src/legale/interfaces/create-document.request.ts)).
 
-## Contributing
-1. Fork & clone.
-2. `npm i`.
-3. Add tests for any new behaviour.
-4. Run `node --run build && node --run test`.
-5. Open a PR—descriptive commit history & clean diff appreciated.
+```ts
+import { Legale } from 'legale-sdk';
+import { readFile } from 'fs/promises';
 
-Feel free to open issues for bugs, use‑cases, or missing endpoints.
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+const document = await legale.createDocument({
+   file: await readFile('/path/to/file.pdf'),
+   fileName: 'root/remote/path/to/file.pdf',
+   description: 'Testing file'
+});
+```
+
+### `Legale.downloadDocument`
+Gets the document binary data (the PDF file). Returns a `Promise<Buffer>`. Arguments:
+
+* **guid**: `string`.
+
+```ts
+import { Legale } from 'legale-sdk';
+
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+const buffer = await legale.downloadDocument('aaaa-bbbb-...');
+```
+
+### `Legale.deleteDocument`
+Deletes the document from Legale. Returns a `Promise<void>`. Arguments:
+
+* **guid**: `string`.
+
+```ts
+import { Legale } from 'legale-sdk';
+
+const legale = new Legale({ test: true });
+await legale.setAPIKey('xxxx-xxxx-...');
+await legale.deleteDocument('aaaa-bbbb-...');
+```

@@ -1,5 +1,5 @@
 export interface Document {
-    GUID: string;
+    guid: string;
     docId: string;
     document: string;
     fileName: string;

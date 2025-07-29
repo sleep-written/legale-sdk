@@ -7,12 +7,18 @@ const jsonConverter = new JSONConverter({
         .replace(/(^_+|_+$)/g, '')
         .toLowerCase(),
 
-    transformKey: key => key.replace(
-        /_+[a-zñ]/gi,
-        (...[ t ]) => t
-            .replace(/_+/g, '')
-            .toUpperCase()
-    ),
+    transformKey: key => {
+        if (key.match(/_/gi) != null) {
+            return key.replace(
+                /_+[a-zñ]/gi,
+                (...[ t ]) => t
+                    .replace(/_+/g, '')
+                    .toUpperCase()
+            );
+        } else {
+            return key.toLowerCase();
+        }
+    },
 
     transformValue: v => {
         if (typeof v === 'string' && dateISO.test(v)) {

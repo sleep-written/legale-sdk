@@ -3,6 +3,8 @@ import test from 'ava';
 
 test('Object literal', t => {
     const json = toJSONCamelCase({
+        AAAAAA: 444,
+        AA55AA: 555,
         foo_bar: 666,
         FOO_BAZ: 777,
         __ñee__: 888,
@@ -10,6 +12,8 @@ test('Object literal', t => {
     });
 
     t.deepEqual(json, {
+        aaaaaa: 444,
+        aa55aa: 555,
         fooBar: 666,
         fooBaz: 777,
         ñee: 888,

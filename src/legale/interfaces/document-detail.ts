@@ -2,7 +2,7 @@ import type { Owner } from './owner.js';
 import type { Sign } from './sign.js';
 
 export interface DocumentDetail {
-    GUID: string;
+    guid: string;
     docId: string;
     document: string;
     folder: string;
