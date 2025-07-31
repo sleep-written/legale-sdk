@@ -1,6 +1,7 @@
 {
   "type": "module",
   "name": "legale-sdk",
+  "description": "An unnofficial legale API wrapper",
   "version": "0.1.0",
   "files": [
     "dist"
@@ -27,6 +28,13 @@
     "build:def": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "prepare": "node --run build"
   },
+  "keywords": [
+    "legale",
+    "sdk",
+    "typescript",
+    "api",
+    "ava"
+  ],
   "devDependencies": {
     "@bleed-believer/path-alias": "^2.3.2",
     "@types/node": "^24.1.0",
