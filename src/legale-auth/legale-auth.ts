@@ -42,11 +42,12 @@ export class LegaleAuth {
         this.#legaleFetch = legaleFetch ?? new LegaleFetch();
     }
 
-    async getToken(email: string, password: string): Promise<void> {
+    async getToken(email: string, password: string, signal?: AbortSignal): Promise<void> {
         try {
             const json = await this.#legaleFetch.fetchJSON('api/token', {
                 method: 'post',
-                body: { email, password }
+                body: { email, password },
+                signal
             });
 
             this.#token = json.token;
@@ -58,11 +59,12 @@ export class LegaleAuth {
         }
     }
 
-    async setAPIKey(apiKey: string): Promise<void> {
+    async setAPIKey(apiKey: string, signal?: AbortSignal): Promise<void> {
         try {
             await this.#legaleFetch.fetch('api/documents', {
                 query: { page: 1, pageSize: 0 },
-                apiKey
+                apiKey,
+                signal
             });
 
             this.#token = undefined;

@@ -1,9 +1,8 @@
 import type { FetchFunction, FetchResponse, LegaleFetchInject, LegaleFetchRequestOptions } from './interfaces/index.js';
 
+import { toJSONCamelCase, toJSONSnakeCase } from '@/to-json/index.js';
 import { FailedFetchResponseError } from './failed-fetch-response.error.js';
 import { FailedFetchRequestError } from './failed-fetch-request.error.js';
-
-import { toJSONCamelCase, toJSONSnakeCase } from '@/to-json/index.js';
 
 export class LegaleFetch {
     #fetch:             FetchFunction;
@@ -16,9 +15,9 @@ export class LegaleFetch {
         ?   'https://dev.api.legale.io'
         :   'https://api.legale.io';
 
-        this.#fetch =           inject?.fetch           ?? fetch;
-        this.#toJSONCamelCase = inject?.toJSONCamelCase ?? toJSONCamelCase;
-        this.#toJSONSnakeCase = inject?.toJSONSnakeCase ?? toJSONSnakeCase;
+        this.#fetch             = inject?.fetch           ?? fetch;
+        this.#toJSONCamelCase   = inject?.toJSONCamelCase ?? toJSONCamelCase;
+        this.#toJSONSnakeCase   = inject?.toJSONSnakeCase ?? toJSONSnakeCase;
     }
 
     #stringifyQueryValue(value: any): string {
@@ -39,6 +38,7 @@ export class LegaleFetch {
         :   request.headers;
 
         const init: RequestInit = {
+            signal: request?.signal,
             method: request?.method ?? 'get',
             headers,
         };

@@ -2,6 +2,7 @@ import type { FetchRequestMethod } from './fetch-request-method.js';
 
 export interface LegaleFetchRequestOptions {
     apiKey?: string;
+    signal?: AbortSignal;
     token?: string;
     headers?: HeadersInit | Headers;
     method?: FetchRequestMethod;

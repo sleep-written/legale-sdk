@@ -101,6 +101,42 @@ const legaleFetch: LegaleFetchObject = {
                 } as DocumentDetail;
             }
 
+            case 'get:api/document/get/xxx-6': {
+                return new Promise<any>((resolve, reject) => {
+                    const signal = options?.signal;
+                    const timeout = setTimeout(() => {
+                        if (listener) {
+                            signal?.removeEventListener('abort', listener);
+                        }
+
+                        resolve({
+                            guid: 'xxx-6',
+                            createdAt: new Date('2022-10-01T23:00:00.666Z'),
+                            updatedAt: new Date('2022-10-01T23:00:00.666Z'),
+                            owner: {
+                                email: 'perreo.ijoeputa@hotmail.com'
+                            },
+                            signList: [
+                                {
+                                    id: 666,
+                                    signMethod: 'jodeeer',
+                                    signerInfo: {
+                                        id: 777,
+                                        email: 'pendejo'
+                                    }
+                                }
+                            ]
+                        });
+                    }, 10000);
+
+                    const listener = signal?.addEventListener('abort', () => {
+                        clearTimeout(timeout);
+                        const error = new Error('ñeee');
+                        reject(error);
+                    });
+                });
+            }
+
             case 'post:api/document/create': {
                 return {
                     guid: 'xxx-6',
@@ -160,6 +196,31 @@ test('Test getDocumentDetail', async t => {
             }
         ]
     });
+});
+
+test('Test getDocumentDetail (throws with `AbortController`)', async t => {
+    const legale = new Legale({ legaleFetch });
+    await legale.getToken('perreo-ijoeputa@frigosorno.cl', 'aaathats3as');
+    t.is(legale.token, 'joder-chaval');
+
+    await t.throwsAsync(
+        async () => {
+            const signal = AbortSignal.timeout(1000);
+            await legale
+                .getDocumentDetail('xxx-6', signal)
+                .catch(err => {
+                    if (err?.cause) {
+                        throw err.cause;
+                    } else {
+                        throw err;
+                    }
+                });
+            
+        },
+        {
+            message: 'ñeee'
+        }
+    )
 });
 
 test('Test getFolders', async t => {

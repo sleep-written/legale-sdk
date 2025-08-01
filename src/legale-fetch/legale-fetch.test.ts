@@ -168,3 +168,48 @@ test('Test get request in "/hello/world" → failed Buffer capture', async t => 
         }
     )
 });
+
+test('Test get request in "/hello/world" → Call `AbortController`', async t => {
+    const inject: LegaleFetchInject = {
+        test: true,
+        toJSONCamelCase: _ => { throw new Error('Perreo ijoeputa') },
+        toJSONSnakeCase: _ => { throw new Error('Perreo ijoeputa') },
+        fetch: fetchFactory((_, { signal }) => ({
+            json: () => new Promise<void>((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    if (listener) {
+                        signal?.removeEventListener('abort', listener);
+                    }
+
+                    resolve();
+                }, 5000);
+
+                const listener = signal?.addEventListener('abort', () => {
+                    clearTimeout(timeout);
+                    const error = new Error('ñeee');
+                    reject(error);
+                });
+            })
+        }))
+    }
+
+    await t.throwsAsync(
+        async () => {
+            const signal = AbortSignal.timeout(1000);
+            const legaleFetch = new LegaleFetch(inject);
+            await legaleFetch
+                .fetchJSON('hello/world', { signal })
+                .catch(err => {
+                    if (err?.cause) {
+                        throw err.cause;
+                    } else {
+                        throw err;
+                    }
+                });
+            
+        },
+        {
+            message: 'ñeee'
+        }
+    );
+});
