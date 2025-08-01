@@ -1,3 +1,4 @@
+import type { SignStatus } from './sign-status.js';
 import type { Owner } from './owner.js';
 import type { Sign } from './sign.js';
 
@@ -12,7 +13,7 @@ export interface DocumentDetail {
     description: string;
     createdAt: Date;
     updatedAt: Date;
-    signStatus: number;
+    signStatus: SignStatus;
     comment: null;
     signatureKey: null;
     base64: string;
