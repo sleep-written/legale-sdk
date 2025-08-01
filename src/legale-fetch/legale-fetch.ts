@@ -98,8 +98,8 @@ export class LegaleFetch {
         return this.#fetch(url, init);
     }
 
-    async fetch(path: string, request?: LegaleFetchRequestOptions): Promise<void> {
-        const resp = await this.#executeFetch(path, request);
+    async fetch(path: string, options?: LegaleFetchRequestOptions): Promise<void> {
+        const resp = await this.#executeFetch(path, options);
         if (!resp.ok) {
             throw new FailedFetchResponseError(
                 resp.status,

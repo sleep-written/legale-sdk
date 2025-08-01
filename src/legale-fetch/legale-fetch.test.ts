@@ -213,3 +213,41 @@ test('Test get request in "/hello/world" → Call `AbortController`', async t =>
         }
     );
 });
+
+test.skip('Test get request in "/hello/world" → Throw error after 3 attempts', async t => {
+    let attempts = 0;
+    const inject: LegaleFetchInject = {
+        test: true,
+        toJSONCamelCase: _ => { throw new Error('Perreo ijoeputa') },
+        toJSONSnakeCase: _ => { throw new Error('Perreo ijoeputa') },
+        fetch: fetchFactory(() => ({
+            ok: false,
+            status: 500,
+            json: async () => {
+                attempts++;
+                throw new Error('caca');
+            }
+        }))
+    }
+
+    await t.throwsAsync(
+        async () => {
+            const legaleFetch = new LegaleFetch(inject);
+            await legaleFetch
+                .fetchJSON('hello/world', { retries: 3 })
+                .catch(err => {
+                    if (err?.cause) {
+                        throw err.cause;
+                    } else {
+                        throw err;
+                    }
+                });
+            
+        },
+        {
+            message: 'caca'
+        }
+    );
+
+    t.is(attempts, 3);
+});
