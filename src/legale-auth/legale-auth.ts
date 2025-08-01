@@ -1,5 +1,6 @@
-import type { AuthMethod, LegaleFetchObject } from './interfaces/index.js';
-import { LegaleFetch } from '@/legale-fetch/legale-fetch.js';
+import type { AuthMethod, LegaleRequestOptions, LegaleFetchObject } from './interfaces/index.js';
+
+import { FailedFetchResponseError, LegaleFetch } from '@/legale-fetch/index.js';
 import { FailedLoginError } from './failed-login.error.js';
 
 export class LegaleAuth {
@@ -42,37 +43,49 @@ export class LegaleAuth {
         this.#legaleFetch = legaleFetch ?? new LegaleFetch();
     }
 
-    async getToken(email: string, password: string, signal?: AbortSignal): Promise<void> {
+    async getToken(email: string, password: string, options?: LegaleRequestOptions): Promise<void> {
         try {
             const json = await this.#legaleFetch.fetchJSON('api/token', {
+                ...options,
                 method: 'post',
-                body: { email, password },
-                signal
+                body: { email, password }
             });
 
             this.#token = json.token;
             this.#apiKey = undefined;
 
         } catch (err: any) {
-            throw new FailedLoginError(err);
-
+            if (
+                err instanceof FailedFetchResponseError &&
+                (err.status === 401 || err.status === 403)
+            ) {
+                throw new FailedLoginError(err);
+            } else {
+                throw err;
+            }
         }
     }
 
-    async setAPIKey(apiKey: string, signal?: AbortSignal): Promise<void> {
+    async setAPIKey(apiKey: string, options?: LegaleRequestOptions): Promise<void> {
         try {
             await this.#legaleFetch.fetch('api/documents', {
+                ...options,
                 query: { page: 1, pageSize: 0 },
-                apiKey,
-                signal
+                apiKey
             });
 
             this.#token = undefined;
             this.#apiKey = apiKey;
 
         } catch (err: any) {
-            throw new FailedLoginError(err);
-
+            if (
+                err instanceof FailedFetchResponseError &&
+                (err.status === 401 || err.status === 403)
+            ) {
+                throw new FailedLoginError(err);
+            } else {
+                throw err;
+            }
         }
     }
 

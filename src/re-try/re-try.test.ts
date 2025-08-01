@@ -59,7 +59,7 @@ test('Try and success (3 attempts, 10 retries)', async t => {
     t.is(result, 666);
 });
 
-test('Try and fail (3 attempts, 3 retries)', async t => {
+test('Try and fail (4 attempts, 3 retries)', async t => {
     let attempts = 0;
     const callback = () => {
         attempts++;
@@ -72,5 +72,5 @@ test('Try and fail (3 attempts, 3 retries)', async t => {
         { message: 'caca' }
     );
 
-    t.is(attempts, 3);
+    t.is(attempts, 4);
 });

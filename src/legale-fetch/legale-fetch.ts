@@ -3,6 +3,7 @@ import type { FetchFunction, FetchResponse, LegaleFetchInject, LegaleFetchReques
 import { toJSONCamelCase, toJSONSnakeCase } from '@/to-json/index.js';
 import { FailedFetchResponseError } from './failed-fetch-response.error.js';
 import { FailedFetchRequestError } from './failed-fetch-request.error.js';
+import { reTry } from '@/re-try/index.js';
 
 export class LegaleFetch {
     #fetch:             FetchFunction;
@@ -98,62 +99,68 @@ export class LegaleFetch {
         return this.#fetch(url, init);
     }
 
-    async fetch(path: string, options?: LegaleFetchRequestOptions): Promise<void> {
-        const resp = await this.#executeFetch(path, options);
-        if (!resp.ok) {
-            throw new FailedFetchResponseError(
-                resp.status,
-                resp.statusText ??
-                'Unknown fetch error'
-            );
-        }
-    }
-    
-    async fetchJSON(path: string, request?: LegaleFetchRequestOptions): Promise<any> {
-        const resp = await this.#executeFetch(path, request);
-        const json = await resp
-            .json()
-            .catch(err => {
+    fetch(path: string, options?: LegaleFetchRequestOptions): Promise<void> {
+        return reTry(options?.retries ?? 0, async () => {
+            const resp = await this.#executeFetch(path, options);
+            if (!resp.ok) {
                 throw new FailedFetchResponseError(
                     resp.status,
-                    `The json fetch response function has failed`,
-                    err
-                )
-            });
-
-        if (!resp.ok) {
-            throw new FailedFetchResponseError(
-                resp.status,
-                json['message'] ??
-                json['details'] ??
-                resp.statusText ??
-                'Unknown fetch error'
-            );
-        }
-
-        try {
-            return this.#toJSONCamelCase(json);
-        } catch (err: any) {
-            throw new FailedFetchResponseError(
-                resp.status,
-                'The function `toJSONCamelCase` has been failed',
-                err
-            );
-        }
+                    resp.statusText ??
+                    'Unknown fetch error'
+                );
+            }
+        });
     }
     
-    async fetchBuffer(path: string, request?: LegaleFetchRequestOptions): Promise<Buffer> {
-        const resp = await this.#executeFetch(path, request);
+    fetchJSON(path: string, options?: LegaleFetchRequestOptions): Promise<any> {
+        return reTry(options?.retries ?? 0, async () => {
+            const resp = await this.#executeFetch(path, options);
+            const json = await resp
+                .json()
+                .catch(err => {
+                    throw new FailedFetchResponseError(
+                        resp.status,
+                        `The json fetch response function has failed`,
+                        err
+                    )
+                });
+    
+            if (!resp.ok) {
+                throw new FailedFetchResponseError(
+                    resp.status,
+                    json['message'] ??
+                    json['details'] ??
+                    resp.statusText ??
+                    'Unknown fetch error'
+                );
+            }
+    
+            try {
+                return this.#toJSONCamelCase(json);
+            } catch (err: any) {
+                throw new FailedFetchResponseError(
+                    resp.status,
+                    'The function `toJSONCamelCase` has been failed',
+                    err
+                );
+            }
+        });
+    }
+    
+    fetchBuffer(path: string, options?: LegaleFetchRequestOptions): Promise<Buffer> {
+        return reTry(options?.retries ?? 0, async () => {
+            const resp = await this.#executeFetch(path, options);
 
-        try {
-            const arr = await resp.arrayBuffer();
-            return Buffer.from(arr);
-        } catch (err: any) {
-            throw new FailedFetchResponseError(
-                resp.status,
-                'Cannot extract the buffer from response',
-                err
-            );
-        }
+            try {
+                const arr = await resp.arrayBuffer();
+                return Buffer.from(arr);
+            } catch (err: any) {
+                throw new FailedFetchResponseError(
+                    resp.status,
+                    'Cannot extract the buffer from response',
+                    err
+                );
+            }
+        });
     }
 }

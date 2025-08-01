@@ -11,7 +11,7 @@ export async function reTry<T>(retries: number, callback: () => Promise<T>): Pro
             return r;
 
         } catch (err) {
-            if (++attempts >= retries) {
+            if (++attempts > retries) {
                 throw err;
             }
         }

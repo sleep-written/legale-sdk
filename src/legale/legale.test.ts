@@ -207,7 +207,7 @@ test('Test getDocumentDetail (throws with `AbortController`)', async t => {
         async () => {
             const signal = AbortSignal.timeout(1000);
             await legale
-                .getDocumentDetail('xxx-6', signal)
+                .getDocumentDetail('xxx-6', { signal })
                 .catch(err => {
                     if (err?.cause) {
                         throw err.cause;

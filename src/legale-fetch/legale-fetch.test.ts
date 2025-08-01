@@ -214,7 +214,7 @@ test('Test get request in "/hello/world" → Call `AbortController`', async t =>
     );
 });
 
-test.skip('Test get request in "/hello/world" → Throw error after 3 attempts', async t => {
+test('Test get request in "/hello/world" → Throw error after 4 attempts', async t => {
     let attempts = 0;
     const inject: LegaleFetchInject = {
         test: true,
@@ -249,5 +249,5 @@ test.skip('Test get request in "/hello/world" → Throw error after 3 attempts',
         }
     );
 
-    t.is(attempts, 3);
+    t.is(attempts, 4);
 });

@@ -1,5 +1,5 @@
 import type { CreateDocumentRequest, DocumentDetail, Folder, GetDocumentsResponse, LegaleInject } from './interfaces/index.js';
-import type { LegaleFetchObject } from '@/legale-auth/index.js';
+import type { LegaleFetchObject, LegaleRequestOptions } from '@/legale-auth/index.js';
 
 import { LegaleFetch } from '@/legale-fetch/index.js';
 import { LegaleAuth } from '@/legale-auth/index.js';
@@ -20,76 +20,76 @@ export class Legale extends LegaleAuth {
         this.#legaleFetch = legaleFetch;
     }
 
-    getFolders(signal?: AbortSignal): Promise<Folder[]> {
+    getFolders(options?: LegaleRequestOptions): Promise<Folder[]> {
         return this.#legaleFetch.fetchJSON('api/folder', {
             ...this.#credentials,
-            method: 'get',
-            signal
+            ...options,
+            method: 'get'
         });
     }
 
-    deleteFolder(id: number, signal?: AbortSignal): Promise<void> {
+    deleteFolder(id: number, options?: LegaleRequestOptions): Promise<void> {
         return this.#legaleFetch.fetch(`api/folder/${id}`, {
             ...this.#credentials,
-            method: 'delete',
-            signal
+            ...options,
+            method: 'delete'
         });
     }
 
-    getDocuments(page: number, pageSize: number, signal?: AbortSignal): Promise<GetDocumentsResponse> {
+    getDocuments(page: number, pageSize: number, options?: LegaleRequestOptions): Promise<GetDocumentsResponse> {
         return this.#legaleFetch.fetchJSON('api/documents', {
             ...this.#credentials,
+            ...options,
             method: 'get',
-            query: { page, pageSize },
-            signal
+            query: { page, pageSize }
         });
     }
 
-    getDocumentDetail(guid: string, signal?: AbortSignal): Promise<DocumentDetail> {
+    getDocumentDetail(guid: string, options?: LegaleRequestOptions): Promise<DocumentDetail> {
         return this.#legaleFetch.fetchJSON(`api/document/get/${guid}`, {
             ...this.#credentials,
-            method: 'get',
-            signal
+            ...options,
+            method: 'get'
         });
     }
 
-    async createDocument(options: CreateDocumentRequest, signal?: AbortSignal): Promise<Document> {
-        if (Buffer.isBuffer(options.file)) {
-            options.file = options.file.toString('base64');
+    async createDocument(data: CreateDocumentRequest, options?: LegaleRequestOptions): Promise<Document> {
+        if (Buffer.isBuffer(data.file)) {
+            data.file = data.file.toString('base64');
         }
 
-        if (options.attachedFiles) {
-            for (const attachedFile of options.attachedFiles) {
+        if (data.attachedFiles) {
+            for (const attachedFile of data.attachedFiles) {
                 if (Buffer.isBuffer(attachedFile.file)) {
                     attachedFile.file = attachedFile.file.toString('base64');
                 }
             }
 
-            (options as any).attachedFile = options.attachedFiles;
-            delete (options as any).attachedFiles;
+            (data as any).attachedFile = data.attachedFiles;
+            delete (data as any).attachedFiles;
         }
 
         return this.#legaleFetch.fetchJSON('api/document/create', {
             ...this.#credentials,
+            ...options,
             method: 'post',
-            body: options,
-            signal
+            body: data
         });
     }
 
-    downloadDocument(guid: string, signal?: AbortSignal): Promise<Buffer> {
+    downloadDocument(guid: string, options?: LegaleRequestOptions): Promise<Buffer> {
         return this.#legaleFetch.fetchBuffer(`media/${guid}`, {
             ...this.#credentials,
-            method: 'get',
-            signal
+            ...options,
+            method: 'get'
         });
     }
 
-    deleteDocument(guid: string, signal?: AbortSignal): Promise<void> {
+    deleteDocument(guid: string, options?: LegaleRequestOptions): Promise<void> {
         return this.#legaleFetch.fetch(`api/document/delete/${guid}`, {
             ...this.#credentials,
-            method: 'delete',
-            signal
+            ...options,
+            method: 'delete'
         });
     }
 }
