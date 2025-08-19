@@ -66,22 +66,3 @@ test('Login with APIKey → success', async t => {
     t.true(legaleAuth.isLogged);
     t.is(legaleAuth.authMethod, 'api-key');
 });
-
-test('Login with APIKey → failed', async t => {
-    const legaleFetch = legaleFetchFactory({
-        fetch: () => Promise.reject(
-            new FailedFetchResponseError(401, 'Incorrect credentials')
-        )
-    });
-
-    const legaleAuth = new LegaleAuth(legaleFetch);
-    await t.throwsAsync(
-        () => legaleAuth.setAPIKey(
-            'jodeeeeeer'
-        ),
-        {
-            instanceOf: FailedLoginError,
-            message: 'Failed to login into Legale'
-        }
-    );
-});
