@@ -39,6 +39,7 @@ export class LegaleFetch {
         :   request.headers;
 
         const init: RequestInit = {
+            redirect: 'follow',
             signal: request?.signal,
             method: request?.method ?? 'get',
             headers,

@@ -66,27 +66,9 @@ export class LegaleAuth {
         }
     }
 
-    async setAPIKey(apiKey: string, options?: LegaleRequestOptions): Promise<void> {
-        try {
-            await this.#legaleFetch.fetch('api/documents', {
-                ...options,
-                query: { page: 1, pageSize: 0 },
-                apiKey
-            });
-
-            this.#token = undefined;
-            this.#apiKey = apiKey;
-
-        } catch (err: any) {
-            if (
-                err instanceof FailedFetchResponseError &&
-                (err.status === 401 || err.status === 403)
-            ) {
-                throw new FailedLoginError(err);
-            } else {
-                throw err;
-            }
-        }
+    setAPIKey(apiKey: string): void {
+        this.#token = undefined;
+        this.#apiKey = apiKey;
     }
 
     logout(): void {

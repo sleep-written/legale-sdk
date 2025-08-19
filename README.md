@@ -26,7 +26,7 @@ import { Legale } from 'legale-sdk';
 const legale = new Legale({ test: true });
 
 // Log in using the API key method
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 
 // Getting the first 10 documents
 const result = await legale.getDocuments(1, 10);
@@ -66,7 +66,7 @@ import { Legale } from 'legale-sdk';
 const legale = new Legale({ test: true });
 
 // Log in using the API key method
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 
 // Log in using the bearer token method
 await legale.getToken('user@email.io', '53cur3-p455w0r1d');
@@ -110,7 +110,7 @@ Gets a document list using pagination. Returns a `Promise<GetDocumentsResponse>`
 import { Legale } from 'legale-sdk';
 
 const legale = new Legale({ test: true });
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 const result = await legale.getDocuments(
    1,    // Page index, the first page is 1.
    10    // Page size
@@ -126,7 +126,7 @@ Gets detailed information about a document. Returns a `Promise<DocumentDetail>` 
 import { Legale } from 'legale-sdk';
 
 const legale = new Legale({ test: true });
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 const document = await legale.getDocumentDetail('aaaa-bbbb-...');
 ```
 
@@ -140,7 +140,7 @@ import { Legale } from 'legale-sdk';
 import { readFile } from 'fs/promises';
 
 const legale = new Legale({ test: true });
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 const document = await legale.createDocument({
    file: await readFile('/path/to/file.pdf'),
    fileName: 'root/remote/path/to/file.pdf',
@@ -157,7 +157,7 @@ Gets the document binary data (the PDF file). Returns a `Promise<Buffer>`. Argum
 import { Legale } from 'legale-sdk';
 
 const legale = new Legale({ test: true });
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 const buffer = await legale.downloadDocument('aaaa-bbbb-...');
 ```
 
@@ -170,6 +170,6 @@ Deletes the document from Legale. Returns a `Promise<void>`. Arguments:
 import { Legale } from 'legale-sdk';
 
 const legale = new Legale({ test: true });
-await legale.setAPIKey('xxxx-xxxx-...');
+legale.setAPIKey('xxxx-xxxx-...');
 await legale.deleteDocument('aaaa-bbbb-...');
 ```
