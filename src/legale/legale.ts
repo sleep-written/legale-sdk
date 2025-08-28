@@ -1,4 +1,8 @@
-import type { CreateDocumentRequest, DocumentDetail, Folder, GetDocumentsResponse, LegaleInject } from './interfaces/index.js';
+import type {
+    CreateDocumentRequest, DocumentDetail, Document, Folder,
+    GetDocumentsResponse, LegaleInject, SignStartRequest
+} from './interfaces/index.js';
+
 import type { LegaleFetchObject, LegaleRequestOptions } from '@/legale-auth/index.js';
 
 import { LegaleFetch } from '@/legale-fetch/index.js';
@@ -92,4 +96,15 @@ export class Legale extends LegaleAuth {
             method: 'delete'
         });
     }
+
+    // async signStart(guid: string, data: SignStartRequest, options?: LegaleRequestOptions): Promise<string[]> {
+    //     const result = await this.#legaleFetch.fetchJSON(`api/sign/start/${guid}`, {
+    //         ...this.#credentials,
+    //         ...options,
+    //         method: 'post',
+    //         body: data
+    //     });
+
+    //     return result.data;
+    // }
 }
